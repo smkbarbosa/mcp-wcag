@@ -3,8 +3,8 @@
 [![CI](https://github.com/smkbarbosa/mcp-wcag/actions/workflows/ci.yml/badge.svg)](https://github.com/smkbarbosa/mcp-wcag/actions/workflows/ci.yml)
 
 Servidor **MCP (Model Context Protocol)** local, em Node.js/TypeScript, que expõe uma
-base de conhecimento de acessibilidade web para agentes de IA no VS Code (Cline, Roo
-Code, prompts locais). O conteúdo é inspirado no formato de cartões do
+base de conhecimento de acessibilidade web para agentes de IA (VS Code nativo, Cline,
+Roo Code, OpenCode, prompts locais). O conteúdo é inspirado no formato de cartões do
 [Guia WCAG de Marcelo Sales](https://guia-wcag.com/) e cruza critérios de sucesso da
 **WCAG 2.2** com os itens normativos correspondentes da **ABNT NBR 17225:2025**
 (norma brasileira de acessibilidade digital).
@@ -62,7 +62,7 @@ O script `test` compila o projeto (`pretest`) e roda a suíte com
 cada tool, além de um teste de integração que sobe o servidor compilado e conversa
 com ele via stdio usando JSON-RPC de verdade (o mesmo protocolo que o VS Code usa).
 
-## Como configurar o MCP no VS Code
+## Como configurar o MCP
 
 Em todos os casos abaixo, rode `npm run build` antes (o servidor é iniciado a partir
 de `dist/index.js`) e troque `/caminho/absoluto/para/guia_wcag_mcp` pelo caminho
@@ -112,6 +112,24 @@ usam a mesma estrutura):
       ],
       "disabled": false,
       "autoApprove": []
+    }
+  }
+}
+```
+
+### OpenCode
+
+Adicione o servidor em `opencode.json` — na raiz do projeto (só para esse workspace)
+ou em `~/.config/opencode/opencode.json` (global, todos os projetos):
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "guia-wcag-mcp": {
+      "type": "local",
+      "command": ["node", "/caminho/absoluto/para/guia_wcag_mcp/dist/index.js"],
+      "enabled": true
     }
   }
 }
