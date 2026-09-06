@@ -62,11 +62,45 @@ O script `test` compila o projeto (`pretest`) e roda a suíte com
 cada tool, além de um teste de integração que sobe o servidor compilado e conversa
 com ele via stdio usando JSON-RPC de verdade (o mesmo protocolo que o VS Code usa).
 
-## Uso com VS Code (Cline / Roo Code)
+## Como configurar o MCP no VS Code
 
-Depois de rodar `npm run build`, registre o servidor no arquivo de configuração de
-MCP da extensão (`cline_mcp_settings.json` para o Cline, `mcp_settings.json` para o
-Roo Code — ambos usam a mesma estrutura):
+Em todos os casos abaixo, rode `npm run build` antes (o servidor é iniciado a partir
+de `dist/index.js`) e troque `/caminho/absoluto/para/guia_wcag_mcp` pelo caminho
+onde você clonou este repositório.
+
+### VS Code nativo (GitHub Copilot Chat, modo agente)
+
+O VS Code tem suporte nativo a MCP — não precisa de extensão de terceiros.
+
+**Só neste workspace:** crie o arquivo `.vscode/mcp.json` na raiz do projeto:
+
+```json
+{
+  "servers": {
+    "guia-wcag-mcp": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/dist/index.js"]
+    }
+  }
+}
+```
+
+**Em todos os workspaces:** abra a paleta de comandos (`Ctrl+Shift+P` /
+`Cmd+Shift+P`) e rode **MCP: Add Server...** → **Command (stdio)**, informando
+`node` como comando e o caminho absoluto de `dist/index.js` como argumento. Isso
+grava a configuração no `mcp.json` de usuário (acessível depois via
+**MCP: Open User Configuration**).
+
+Em ambos os casos, depois de salvar, abra o painel do Copilot Chat, mude para o
+**modo agente** e clique em "Iniciar" ao lado do servidor `guia-wcag-mcp` (ou rode
+**MCP: List Servers** na paleta de comandos para gerenciar/reiniciar).
+
+### Cline / Roo Code
+
+Registre o servidor no arquivo de configuração de MCP da extensão
+(`cline_mcp_settings.json` para o Cline, `mcp_settings.json` para o Roo Code — ambos
+usam a mesma estrutura):
 
 ```json
 {
@@ -83,7 +117,7 @@ Roo Code — ambos usam a mesma estrutura):
 }
 ```
 
-Ajuste o caminho para onde você clonou o repositório e recarregue a extensão.
+Depois de salvar, recarregue a extensão (painel "MCP Servers" → Restart).
 
 ## Estrutura do projeto
 
@@ -119,8 +153,15 @@ aprovado no GitHub se **ambos** passarem:
 2. **`build-and-test`** (depende do job acima) — compila o projeto e roda
    `npm test` em Node 22.x e 24.x.
 
+O workflow [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml) roda
+[CodeQL](https://codeql.github.com/) (análise estática de JavaScript/TypeScript) em
+todo push/PR para `main` e semanalmente, para pegar padrões de código inseguro.
+
 Além disso, o [Dependabot](.github/dependabot.yml) abre PRs semanais para manter as
 dependências (npm e GitHub Actions) atualizadas.
+
+A branch `main` exige, via regra do repositório, que os checks de CI e ao menos uma
+aprovação de PR passem antes do merge.
 
 Essas checagens reduzem o risco, mas não eliminam: sempre revise PRs que alterem
 `package.json`/`package-lock.json` antes de fazer merge.
