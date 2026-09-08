@@ -6,6 +6,7 @@ import {
   buildSimplifiedGuideJson,
   generateManualTestRoutineText,
   getCriterionDetailsText,
+  recommendCriteriaForProjectTypeText,
   searchCriteriaByKeywordText,
 } from "./lib/wcag-tools.js";
 
@@ -16,11 +17,13 @@ const server = new McpServer(
   },
   {
     instructions:
-      "Servidor de conhecimento local sobre acessibilidade web, baseado no formato do " +
-      "Guia WCAG (Marcelo Sales) cruzado com a ABNT NBR 17225:2025. Use as tools para " +
-      "consultar critérios, buscar por palavra-chave e gerar roteiros de teste manual. " +
-      "Nenhuma tool deste servidor emite veredito de conformidade — a validação final " +
-      "sempre depende de teste humano com teclado e tecnologias assistivas.",
+      "Servidor de conhecimento local sobre acessibilidade web, com os 87 critérios da " +
+      "WCAG 2.2 (Guia WCAG de Marcelo Sales, uso autorizado) cruzados com a ABNT NBR " +
+      "17225:2025. Use as tools para consultar critérios, buscar por palavra-chave, " +
+      "recomendar critérios prioritários de acordo com o tipo de projeto e gerar " +
+      "roteiros de teste manual. Nenhuma tool deste servidor emite veredito de " +
+      "conformidade — a validação final sempre depende de teste humano com teclado e " +
+      "tecnologias assistivas.",
   },
 );
 
@@ -28,10 +31,11 @@ server.registerResource(
   "wcag-simplified-guide",
   "wcag://v2.2/simplified-guide",
   {
-    title: "Guia WCAG 2.2 simplificado (correlação ABNT NBR 17225)",
+    title: "Guia WCAG 2.2 completo (correlação ABNT NBR 17225)",
     description:
-      "Critérios de sucesso da WCAG 2.2 organizados por princípio, com descrição em " +
-      "linguagem simples e correlações com a ABNT NBR 17225:2025.",
+      "Os 87 critérios de sucesso da WCAG 2.2, com descrição em linguagem simples, " +
+      "correlações com a ABNT NBR 17225:2025 e os perfis de tipo de projeto usados " +
+      "pela tool recommend_criteria_for_project_type.",
     mimeType: "application/json",
   },
   async (uri) => ({
@@ -89,6 +93,26 @@ server.registerTool(
   },
   async ({ criterion }) => ({
     content: [{ type: "text", text: generateManualTestRoutineText(criterion) }],
+  }),
+);
+
+server.registerTool(
+  "recommend_criteria_for_project_type",
+  {
+    title: "Recomendar critérios por tipo de projeto",
+    description:
+      "Recebe uma descrição livre do tipo de projeto (ex.: \"loja virtual\", " +
+      '"formulário de cadastro", "app mobile") e devolve os critérios WCAG ' +
+      "prioritários para esse contexto, com base em perfis curados por este servidor.",
+    inputSchema: {
+      projectType: z
+        .string()
+        .min(1)
+        .describe('Descrição livre do tipo de projeto, ex.: "e-commerce", "dashboard de dados"'),
+    },
+  },
+  async ({ projectType }) => ({
+    content: [{ type: "text", text: recommendCriteriaForProjectTypeText(projectType) }],
   }),
 );
 

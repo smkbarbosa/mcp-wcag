@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 /**
  * Teste de integração: sobe o servidor MCP compilado (dist/index.js) e conversa
  * com ele via stdio usando JSON-RPC de verdade, exatamente como o VS Code
- * (Cline/Roo Code) faria. Requer que `npm run build` já tenha rodado antes
+ * (Cline/Roo Code/OpenCode) faria. Requer que `npm run build` já tenha rodado antes
  * (o script "pretest" do package.json cuida disso).
  */
 
@@ -61,19 +61,20 @@ describe("guia-wcag-mcp (integração via stdio)", () => {
     child.kill();
   });
 
-  it("expõe o resource do guia simplificado", async () => {
+  it("expõe o resource do guia completo", async () => {
     const res = await request(1, "resources/list");
     expect(res.result.resources).toHaveLength(1);
     expect(res.result.resources[0].uri).toBe("wcag://v2.2/simplified-guide");
   });
 
-  it("expõe as três tools esperadas", async () => {
+  it("expõe as quatro tools esperadas", async () => {
     const res = await request(2, "tools/list");
     const names = res.result.tools.map((t: { name: string }) => t.name);
     expect(names).toEqual([
       "get_criterion_details",
       "search_criteria_by_keyword",
       "generate_manual_test_routine",
+      "recommend_criteria_for_project_type",
     ]);
   });
 
@@ -83,7 +84,7 @@ describe("guia-wcag-mcp (integração via stdio)", () => {
       arguments: { criterion: "1.4.3" },
     });
     const text = res.result.content[0].text as string;
-    expect(text).toContain("Contraste Mínimo");
+    expect(text).toContain("Contraste (mínimo)");
     expect(text).toContain("A decisão final é humana.");
   });
 
@@ -96,8 +97,17 @@ describe("guia-wcag-mcp (integração via stdio)", () => {
     expect(text).toContain("2.1.1");
   });
 
-  it("generate_manual_test_routine devolve um roteiro numerado", async () => {
+  it("recommend_criteria_for_project_type recomenda critérios para o tipo de projeto", async () => {
     const res = await request(5, "tools/call", {
+      name: "recommend_criteria_for_project_type",
+      arguments: { projectType: "loja virtual" },
+    });
+    const text = res.result.content[0].text as string;
+    expect(text).toContain("E-commerce / loja virtual");
+  });
+
+  it("generate_manual_test_routine devolve um roteiro numerado", async () => {
+    const res = await request(6, "tools/call", {
       name: "generate_manual_test_routine",
       arguments: { criterion: "2.4.7" },
     });
@@ -106,9 +116,10 @@ describe("guia-wcag-mcp (integração via stdio)", () => {
     expect(text).toMatch(/1\. /);
   });
 
-  it("lê o resource e devolve o JSON completo do guia", async () => {
-    const res = await request(6, "resources/read", { uri: "wcag://v2.2/simplified-guide" });
+  it("lê o resource e devolve o JSON completo do guia (87 critérios + perfis de projeto)", async () => {
+    const res = await request(7, "resources/read", { uri: "wcag://v2.2/simplified-guide" });
     const parsed = JSON.parse(res.result.contents[0].text);
-    expect(parsed.criterios).toHaveLength(10);
+    expect(parsed.criterios).toHaveLength(87);
+    expect(parsed.perfisProjeto.length).toBeGreaterThan(0);
   });
 });
