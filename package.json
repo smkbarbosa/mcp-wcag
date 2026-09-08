@@ -1,7 +1,7 @@
 {
   "name": "guia-wcag-mcp",
-  "version": "1.0.0",
-  "description": "Servidor MCP local com a base de conhecimento do Guia WCAG (Marcelo Sales) cruzada com a ABNT NBR 17225, para uso em agentes de IA no VS Code.",
+  "version": "1.1.0",
+  "description": "Servidor MCP local com os 87 critérios da WCAG 2.2 (Guia WCAG de Marcelo Sales, uso autorizado) cruzados com a ABNT NBR 17225, para uso em agentes de IA.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

@@ -4,9 +4,9 @@
 
 Servidor **MCP (Model Context Protocol)** local, em Node.js/TypeScript, que expõe uma
 base de conhecimento de acessibilidade web para agentes de IA (VS Code nativo, Cline,
-Roo Code, OpenCode, prompts locais). O conteúdo é inspirado no formato de cartões do
-[Guia WCAG de Marcelo Sales](https://guia-wcag.com/) e cruza critérios de sucesso da
-**WCAG 2.2** com os itens normativos correspondentes da **ABNT NBR 17225:2025**
+Roo Code, OpenCode, prompts locais). O conteúdo cobre os **87 critérios de sucesso da
+WCAG 2.2** (Guia WCAG de [Marcelo Sales](https://guia-wcag.com/), uso autorizado pelo
+autor) cruzados com os itens normativos correspondentes da **ABNT NBR 17225:2025**
 (norma brasileira de acessibilidade digital).
 
 > ⚠️ **Este servidor não audita nem certifica acessibilidade sozinho.** Todas as
@@ -18,26 +18,31 @@ Roo Code, OpenCode, prompts locais). O conteúdo é inspirado no formato de cart
 
 ### Resource
 
-- `wcag://v2.2/simplified-guide` — JSON com os 10 critérios de sucesso cobertos,
-  organizados por princípio (Perceptível, Operável, Compreensível, Robusto), cada um
-  com descrição simplificada, palavras-chave e correlações com a ABNT NBR 17225.
+- `wcag://v2.2/simplified-guide` — JSON com os 87 critérios de sucesso da WCAG 2.2
+  (o `4.1.1` consta marcado como `REMOVIDO`, mantido só como referência histórica),
+  organizados por princípio (Perceptível, Operável, Compreensível, Robusto) e
+  diretriz, cada um com descrição em linguagem simples, link de referência oficial
+  no W3C e correlações com a ABNT NBR 17225. Inclui também os perfis de tipo de
+  projeto usados pela tool `recommend_criteria_for_project_type`.
 
 ### Tools
 
 | Tool | Argumento | O que faz |
 | --- | --- | --- |
-| `get_criterion_details` | `criterion` (ex.: `"1.4.3"`) | Descrição simplificada do critério + itens ABNT correlacionados. |
-| `search_criteria_by_keyword` | `keyword` (ex.: `"contraste"`, `"erro"`) | Filtra os cartões do guia que correspondem à palavra-chave. |
-| `generate_manual_test_routine` | `criterion` (ex.: `"2.1.1"`) | Roteiro de teste manual passo a passo (teclado / leitor de tela). A execução e o veredito continuam sendo humanos. |
+| `get_criterion_details` | `criterion` (ex.: `"1.4.3"`) | Descrição do critério + itens ABNT correlacionados (código, classificação Requisito/Recomendação e como cumprir). |
+| `search_criteria_by_keyword` | `keyword` (ex.: `"contraste"`, `"erro"`) | Busca por palavra-chave no nome, diretriz, descrição e correlações ABNT de todos os critérios. |
+| `recommend_criteria_for_project_type` | `projectType` (ex.: `"loja virtual"`, `"formulário de cadastro"`, `"app mobile"`) | Recomenda os critérios prioritários para o tipo de projeto descrito, com base em perfis curados (formulários, mídia, e-commerce, SPA, conteúdo institucional, mobile, dashboards). |
+| `generate_manual_test_routine` | `criterion` (ex.: `"2.1.1"`) | Roteiro de teste manual passo a passo (teclado / leitor de tela), adaptado ao princípio e ao tema do critério. A execução e o veredito continuam sendo humanos. |
 
-Critérios cobertos hoje: `1.1.1`, `1.4.1`, `1.4.3`, `1.4.11`, `2.1.1`, `2.4.7`,
-`2.5.8`, `3.3.1`, `3.3.2`, `4.1.2`.
-
-> As descrições, resumos das correlações ABNT e roteiros de teste foram redigidos
-> neste projeto no mesmo espírito "descomplicado" do guia original — não são cópia
-> literal do site (que é uma SPA renderizada via JS) nem do texto oficial da norma
-> ABNT (protegida por direitos autorais). Para a redação normativa exata, consulte a
-> ABNT NBR 17225:2025 na íntegra.
+> **Sobre a fonte dos dados:** com autorização do autor, Marcelo Sales, o conteúdo
+> (descrições, diretrizes e correlações com a ABNT NBR 17225) foi extraído
+> programaticamente do
+> [`llms-full.txt`](https://guia-wcag.com/llms-full.txt), o arquivo que o próprio
+> Guia WCAG publica para consulta por agentes de IA. Os roteiros de teste manual e os
+> perfis de tipo de projeto são curadoria própria deste servidor, não do Guia WCAG.
+> Referência sugerida: SALES, M. *Guia WCAG* (2018). Disponível em:
+> <https://guia-wcag.com>. Este conteúdo não substitui a leitura dos critérios
+> originais da WCAG nem do texto integral da ABNT NBR 17225:2025.
 
 ## Requisitos
 
@@ -142,8 +147,10 @@ Depois de salvar, recarregue a extensão (painel "MCP Servers" → Restart).
 ```
 src/
   data/
-    wcag-guide.ts        # os 10 critérios (dados + tipos)
-    wcag-guide.test.ts    # testes de integridade dos dados
+    wcag-guide.ts              # os 87 critérios (dados + tipos), extraídos do llms-full.txt
+    wcag-guide.test.ts          # testes de integridade dos dados
+    project-profiles.ts         # perfis de tipo de projeto (curadoria própria)
+    project-profiles.test.ts    # testes de integridade dos perfis
   lib/
     wcag-tools.ts         # lógica pura por trás do resource e das tools
     wcag-tools.test.ts    # testes unitários dessa lógica
